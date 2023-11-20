@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // Root proj
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "zxutils: build"
+    },
+    // Scaffold example
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "scaffold: build",
+      "path": "examples/scaffold"
+    },
+    {
+      "label": "scaffold: debug prep",
+      "dependsOn": ["zxutils: build", "scaffold: build"],
+      "dependsOrder": "sequence"
+    },
+    // Workdir
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "workdir: build",
+      "path": "workdir"
+    },
+    {
+      "label": "workdir: debug prep",
+      "dependsOn": ["zxutils: build", "workdir: build"],
+      "dependsOrder": "sequence"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch scaffold",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/examples/scaffold/index.ts",
+      "preLaunchTask": "scaffold: debug prep",
+      "outFiles": [
+        "${workspaceFolder}/examples/scaffold/dist/**/*.js",
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch workdir",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/workdir/index.ts",
+      "preLaunchTask": "workdir: debug prep",
+      "outFiles": [
+        "${workspaceFolder}/workdir/dist/**/*.js",
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}
