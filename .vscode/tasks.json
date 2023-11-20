@@ -22,20 +22,6 @@
       "label": "scaffold: debug prep",
       "dependsOn": ["zxutils: build", "scaffold: build"],
       "dependsOrder": "sequence"
-    },
-    // Workdir
-    {
-      "type": "npm",
-      "script": "build",
-      "group": "build",
-      "problemMatcher": [],
-      "label": "workdir: build",
-      "path": "workdir"
-    },
-    {
-      "label": "workdir: debug prep",
-      "dependsOn": ["zxutils: build", "workdir: build"],
-      "dependsOrder": "sequence"
     }
   ]
 }

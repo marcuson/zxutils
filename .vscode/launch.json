@@ -16,19 +16,6 @@
         "${workspaceFolder}/dist/**/*.js"
       ],
       "console": "integratedTerminal"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch workdir",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/workdir/index.ts",
-      "preLaunchTask": "workdir: debug prep",
-      "outFiles": [
-        "${workspaceFolder}/workdir/dist/**/*.js",
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "console": "integratedTerminal"
     }
   ]
 }

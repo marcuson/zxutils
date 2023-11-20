@@ -1,4 +1,4 @@
-import { BasicPlugin, StepConfig, start } from "@marcuson/scriptman";
+import { BasicPlugin, StepConfig, start } from "@marcuson/zxutils";
 
 const steps: StepConfig[] = [
   {

@@ -3,7 +3,6 @@
     "module": "NodeNext",
     "outDir": "dist",
     "sourceMap": true,
-    "declaration": true,
     "target": "es2017"
   },
   "include": ["index.ts"]
