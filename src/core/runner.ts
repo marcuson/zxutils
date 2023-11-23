@@ -1,10 +1,18 @@
 import { chalk, fs, os } from "zx";
+import { ScriptOptions, fillDefaultScriptOptions } from "./script-options.js";
 import { Step } from "./step/step.js";
-import { consoleIndent } from "./utils.js";
+import { logIndent } from "./utils.js";
 
 const stepRegFile = "track.log";
 
-async function loadStepTrackFile(prefix: string): Promise<Set<string>> {
+async function loadStepTrackFile(
+  isEnabled: boolean,
+  prefix: string
+): Promise<Set<string>> {
+  if (!isEnabled) {
+    return new Set<string>();
+  }
+
   const regExists = await fs.exists(prefix + "." + stepRegFile);
   if (!regExists) {
     return new Set<string>();
@@ -16,24 +24,36 @@ async function loadStepTrackFile(prefix: string): Promise<Set<string>> {
 }
 
 async function writeStepTrackFile(
+  isEnabled: boolean,
   prefix: string,
   registry: Set<string>
 ): Promise<void> {
+  if (!isEnabled) {
+    return;
+  }
+
   const content = [...registry].join("\n");
   await fs.writeFile(prefix + "." + stepRegFile, content, "utf-8");
 }
 
-export async function run(scriptName: string, steps: Step[]): Promise<void> {
+export async function run(
+  scriptName: string,
+  steps: Step[],
+  options?: Partial<ScriptOptions>
+): Promise<void> {
   console.log(chalk.cyan(`Running script '${scriptName}'.`));
   console.log(chalk.cyan(`OS platform: '${os.platform()}'.`));
   console.log(chalk.cyan(`OS release: '${os.release()}'.\n`));
 
-  const reg = await loadStepTrackFile(scriptName);
+  const opts = fillDefaultScriptOptions(options);
 
-  for (const step of steps) {
-    console.log(chalk.cyan(`Start step '${step.name}'.`));
+  const reg = await loadStepTrackFile(opts.enableStepTracking, scriptName);
 
-    await consoleIndent(1, async () => {
+  for (let stepIdx = 0; stepIdx < steps.length; stepIdx++) {
+    const step = steps[stepIdx];
+    console.log(chalk.cyan(`#${stepIdx}: Start step '${step.name}'.`));
+
+    await logIndent(1, async () => {
       try {
         if (reg.has(step.name)) {
           console.log(
@@ -57,13 +77,13 @@ export async function run(scriptName: string, steps: Step[]): Promise<void> {
         );
         console.log(chalk.red(error));
 
-        await writeStepTrackFile(scriptName, reg);
+        await writeStepTrackFile(opts.enableStepTracking, scriptName, reg);
         process.exit(1);
       }
     });
 
-    console.log(chalk.cyan(`Step '${step.name}' completed.\n`));
+    console.log(chalk.cyan(`#${stepIdx}: Step '${step.name}' completed.\n`));
   }
 
-  await writeStepTrackFile(scriptName, reg);
+  await writeStepTrackFile(opts.enableStepTracking, scriptName, reg);
 }
