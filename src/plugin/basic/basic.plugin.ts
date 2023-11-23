@@ -24,6 +24,12 @@ class BasicPluginClz implements ZxPlugin {
     await fs.ensureDir(dir);
     console.log(chalk.green(`Dir '${dir}' created.`));
   }
+
+  async copyDir(dirSource: string, dirTarget: string): Promise<void> {
+    console.log(`Copy dir '${dirSource}' to '${dirTarget}'.`);
+    await fs.copy(dirSource, dirTarget);
+    console.log(chalk.green(`Copy dir finished.`));
+  }
 }
 
 export const BasicPlugin = createPlugin(BasicPluginClz);
