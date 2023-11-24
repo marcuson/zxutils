@@ -33,6 +33,20 @@ class WinPluginClz implements ZxPlugin {
       enabled ? "1" : "0"
     } /f`;
 
+
+  async askRestart(timeoutSec: number = 10): Promise<void> {
+    const response = await question("Do you want to restart now? [y]/n: ");
+    switch (response) {
+      case "n":
+        return;
+      case undefined:
+      case "y":
+      default:
+        await $`shutdown /r -t ${timeoutSec}`;
+        process.exit(0);
+    }
+  }
+
   async classicRightClickMenu(enable: boolean) {
     if (enable) {
       await this
