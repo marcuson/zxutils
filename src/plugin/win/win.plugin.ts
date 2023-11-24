@@ -51,6 +51,25 @@ class WinPluginClz implements ZxPlugin {
 
     $.shell = oriShell;
   }
+
+  async runAsPowershell(
+    pieces: TemplateStringsArray,
+    ...args: any[]
+  ): Promise<void> {
+    const oriShell = $.shell;
+    const oriPrefix = $.prefix;
+    const oriQuote = $.quote;
+
+    $.shell = "powershell";
+    $.prefix = "";
+    $.quote = quotePowerShell;
+
+    await $(pieces, ...args);
+
+    $.shell = oriShell;
+    $.prefix = oriPrefix;
+    $.quote = oriQuote;
+  }
 }
 
 export const WinPlugin = createPlugin(WinPluginClz);
