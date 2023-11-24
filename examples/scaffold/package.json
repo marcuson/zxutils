@@ -4,6 +4,9 @@
   "description": "Scaffold for zxutils script.",
   "type": "module",
   "main": "dist/index.js",
+  "zxUtils": {
+    "id": "scaffold"
+  },
   "scripts": {
     "build": "run-s clean compile",
     "build:prod": "run-s build bundle",

@@ -1,5 +1,5 @@
 import { chalk, fs } from "zx";
-import { isOsPlatformAnyOf } from "../../core/utils.js";
+import { isOsPlatformAnyOf } from "../../core/script/utils.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
 
 class BasicPluginClz implements ZxPlugin {

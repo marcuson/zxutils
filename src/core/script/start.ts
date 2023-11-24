@@ -1,6 +1,10 @@
+import { camelCase, mapKeys } from "lodash-es";
+import minimist from "minimist";
 import { chalk, fs, os } from "zx";
+import { StepConfig } from "../step/step-config.js";
+import { Step } from "../step/step.js";
+import { CommonScriptArgs } from "./common-script-args.js";
 import { ScriptOptions, fillDefaultScriptOptions } from "./script-options.js";
-import { Step } from "./step/step.js";
 import { logIndent } from "./utils.js";
 
 const stepRegFile = "track.log";
@@ -36,20 +40,42 @@ async function writeStepTrackFile(
   await fs.writeFile(prefix + "." + stepRegFile, content, "utf-8");
 }
 
-export async function run(
+function getCommonArgs(): CommonScriptArgs {
+  // FIXME: Use commander?
+  const miniArgs = minimist(process.argv.slice(2), {
+    boolean: ["zxu-enable-step-tracking"],
+    default: {
+      "zxu-from-step": 0,
+      "zxu-enable-step-tracking": false,
+    },
+  });
+  const commonArgs = mapKeys(miniArgs, (_value, key) => {
+    if (key.startsWith("zxu-") || key.startsWith("-")) {
+      return camelCase(key.replace("zxu-", ""));
+    }
+
+    return key;
+  }) as CommonScriptArgs;
+  return commonArgs;
+}
+
+export async function start(
   scriptName: string,
-  steps: Step[],
+  stepConfigs: StepConfig[],
   options?: Partial<ScriptOptions>
 ): Promise<void> {
   console.log(chalk.cyan(`Running script '${scriptName}'.`));
   console.log(chalk.cyan(`OS platform: '${os.platform()}'.`));
   console.log(chalk.cyan(`OS release: '${os.release()}'.\n`));
 
+  const commonArgs = getCommonArgs();
   const opts = fillDefaultScriptOptions(options);
 
   const reg = await loadStepTrackFile(opts.enableStepTracking, scriptName);
 
-  for (let stepIdx = 0; stepIdx < steps.length; stepIdx++) {
+  const steps = stepConfigs.map((x) => new Step(x));
+
+  for (let stepIdx = commonArgs.fromStep; stepIdx < steps.length; stepIdx++) {
     const step = steps[stepIdx];
     console.log(chalk.cyan(`#${stepIdx}: Start step '${step.name}'.`));
 

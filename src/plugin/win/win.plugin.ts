@@ -1,5 +1,5 @@
-import { $ } from "zx";
-import { isOsPlatformAnyOf } from "../../core/utils.js";
+import { $, quotePowerShell } from "zx";
+import { isOsPlatformAnyOf } from "../../core/script/utils.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
 import { EnableDesktopIconsOptions } from "./desktop-icons/enable-desktop-icons-opts.js";
 import { enableDesktopIconsInternal } from "./desktop-icons/enable-desktop-icons.js";

@@ -1,4 +1,4 @@
-import { Type } from "../core/type.js";
+import { Type } from "../core/utils/type.utils.js";
 
 export interface ZxPlugin {
   name: string;

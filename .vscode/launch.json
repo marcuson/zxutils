@@ -15,7 +15,30 @@
         "${workspaceFolder}/examples/scaffold/dist/**/*.js",
         "${workspaceFolder}/dist/**/*.js"
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "args": ["--zxu-from-step", "1"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch zxman install",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/bin/zxman.ts",
+      "preLaunchTask": "zxutils: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "args": ["install", "${workspaceFolder}/examples/scaffold.zip"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch zxman list",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/bin/zxman.ts",
+      "preLaunchTask": "zxutils: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "args": ["ls"]
     }
   ]
 }
