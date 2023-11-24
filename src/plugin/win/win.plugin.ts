@@ -32,43 +32,44 @@ class WinPluginClz implements ZxPlugin {
       .runAsAdmin`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLUA /t REG_DWORD /d ${
       enabled ? "1" : "0"
     } /f`;
+
+  async classicRightClickMenu(enable: boolean) {
+    if (enable) {
+      await this
+        .runAsAdmin`reg add 'HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32' /f /ve`;
+    } else {
+      await this
+        .runAsAdmin`reg delete 'HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32' /f /ve`;
+    }
+
+    console.log(chalk.green("Right click menu changed."));
   }
 
   async runAsAdmin(
     pieces: TemplateStringsArray,
     ...args: any[]
   ): Promise<void> {
-    const oriShell = $.shell;
-    $.shell = "powershell";
+    await $useContext(async () => {
+      $usePowershell();
 
-    const cmdExtractor = $(pieces, ...args);
-    const escapedCmd = (cmdExtractor as any)._command;
-    (cmdExtractor as any)._command =
-      "echo 'Running command \"" + escapedCmd + "\" as admin.'";
-    await cmdExtractor;
+      const cmdExtractor = $(pieces, ...args);
+      const escapedCmd = (cmdExtractor as any)._command;
+      (cmdExtractor as any)._command =
+        "echo 'Running command \"" + escapedCmd + "\" as admin.'";
+      await cmdExtractor;
 
-    await $`Start-Process powershell -Verb runAs "-NoExit -NoProfile -ExecutionPolicy Bypass -Command ${escapedCmd}"`;
-
-    $.shell = oriShell;
+      await $`Start-Process powershell -Wait -Verb runAs ${escapedCmd}`;
+    });
   }
 
   async runAsPowershell(
     pieces: TemplateStringsArray,
     ...args: any[]
   ): Promise<void> {
-    const oriShell = $.shell;
-    const oriPrefix = $.prefix;
-    const oriQuote = $.quote;
-
-    $.shell = "powershell";
-    $.prefix = "";
-    $.quote = quotePowerShell;
-
-    await $(pieces, ...args);
-
-    $.shell = oriShell;
-    $.prefix = oriPrefix;
-    $.quote = oriQuote;
+    await $useContext(async () => {
+      $usePowershell();
+      await $(pieces, ...args);
+    });
   }
 }
 
