@@ -1,5 +1,6 @@
-import { $, quotePowerShell } from "zx";
+import { $, chalk, question } from "zx";
 import { isOsPlatformAnyOf } from "../../core/script/utils.js";
+import { $useContext, $usePowershell } from "../../core/utils/cmd.utils.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
 import { EnableDesktopIconsOptions } from "./desktop-icons/enable-desktop-icons-opts.js";
 import { enableDesktopIconsInternal } from "./desktop-icons/enable-desktop-icons.js";
@@ -28,11 +29,28 @@ class WinPluginClz implements ZxPlugin {
   }
 
   async setUACStatus(enabled: boolean): Promise<void> {
+    const res =
+      await $`reg query HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLUA /t REG_DWORD`.nothrow();
+    const isEnabled = /0x1/.test(res.stdout) || !/0x0/.test(res.stdout);
+
+    if ((isEnabled && enabled) || (!isEnabled && !enabled)) {
+      console.log(chalk.green("UAC already in right state."));
+      return;
+    }
+
     await this
       .runAsAdmin`reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLUA /t REG_DWORD /d ${
       enabled ? "1" : "0"
     } /f`;
 
+    console.log(chalk.green("UAC state changed."));
+    console.log(
+      chalk.bgYellow(
+        "IMPORTANT: you need to restart your PC for changes to UAC to take effect!"
+      )
+    );
+    await this.askRestart();
+  }
 
   async askRestart(timeoutSec: number = 10): Promise<void> {
     const response = await question("Do you want to restart now? [y]/n: ");
