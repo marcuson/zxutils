@@ -1,4 +1,4 @@
-import { chalk, fs } from "zx";
+import { chalk, fs, path } from "zx";
 import { isOsPlatformAnyOf } from "../../core/script/utils.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
 
@@ -29,6 +29,13 @@ class BasicPluginClz implements ZxPlugin {
     console.log(`Copy dir '${dirSource}' to '${dirTarget}'.`);
     await fs.copy(dirSource, dirTarget);
     console.log(chalk.green(`Copy dir finished.`));
+  }
+
+  async copyFile(fileSource: string, fileTarget: string): Promise<void> {
+    console.log(`Copy file '${fileSource}' to '${fileTarget}'.`);
+    await this.createDirIfNotExist(path.dirname(fileTarget));
+    await fs.copy(fileSource, fileTarget);
+    console.log(chalk.green(`Copy file finished.`));
   }
 }
 
