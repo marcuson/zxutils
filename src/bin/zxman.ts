@@ -6,6 +6,8 @@ import { run } from "../manager/run.js";
 
 const cli = new Command();
 
+cli.enablePositionalOptions(true);
+
 cli
   .command("install")
   .alias("i")
@@ -22,6 +24,9 @@ cli
     return list();
   });
 
-cli.command("run").action(async (_options, _command) => run());
+cli
+  .command("run")
+  .passThroughOptions(true)
+  .action(async (_options, _command) => run());
 
 await cli.parseAsync(process.argv);
