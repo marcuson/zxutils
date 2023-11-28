@@ -1,3 +1,10 @@
+## [0.1.1](https://github.com/marcuson/zxutils/compare/0.1.0...0.1.1) (2023-11-28)
+
+
+### Bug Fixes
+
+* **zxman:** Fix CLI invocation on Windows. ([eb7e923](https://github.com/marcuson/zxutils/commit/eb7e92377d8150ec05070e45e5dde51b46c479be))
+
 # [0.1.0](https://github.com/marcuson/zxutils/compare/0.0.0...0.1.0) (2023-11-28)
 
 
