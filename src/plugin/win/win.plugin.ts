@@ -103,6 +103,14 @@ class WinPluginClz implements ZxPlugin {
       await $(pieces, ...args);
     });
   }
+
+  async createShortcut(target: string, linkPath: string) {
+    await this.runAsPowershell`$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut(${linkPath})
+$Shortcut.TargetPath = ${target}
+$Shortcut.Save()`;
+  }
+
 }
 
 export const WinPlugin = createPlugin(WinPluginClz);
