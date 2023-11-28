@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import { InstallArgs } from "../manager/install/install-args.js";
 import { install } from "../manager/install/install.js";
