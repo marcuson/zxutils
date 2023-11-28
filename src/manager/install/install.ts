@@ -1,13 +1,11 @@
-import { exec as cpExec } from "child_process";
-import jszip from "jszip";
-import { promisify } from "util";
-import { chalk, fs, path } from "zx";
+import { pipeline } from "stream/promises";
+import { extract } from "tar-fs";
+import { v4 } from "uuid";
+import { createGunzip } from "zlib";
+import { $, chalk, fs, path } from "zx";
 import { ZxUtilsPackageJson } from "../../core/script/zx-utils-package-json.js";
-import { extractZip } from "../../core/utils/zip.utils.js";
 import { getLocalScriptsRepoDir } from "../utils.js";
-import { InstallArgs, InstallZipArgs } from "./install-args.js";
-
-const exec = promisify(cpExec);
+import { InstallArgs, InstallTarballArgs } from "./install-args.js";
 
 export async function install(
   scriptPath: string,
@@ -23,8 +21,13 @@ export async function install(
 
   const ext = getExt(scriptPath);
   switch (ext) {
-    case ".zip":
-      await installFromZip(scriptPath, localScriptsDir, args as InstallZipArgs);
+    case ".tgz":
+    case ".tar.gz":
+      await installFromTarball(
+        scriptPath,
+        localScriptsDir,
+        args as InstallTarballArgs
+      );
       break;
     default:
       console.error(chalk.red(`Unsupported script format '${ext}'`));
@@ -35,53 +38,72 @@ export async function install(
 }
 
 function getExt(filePath: string): string {
-  return path.extname(filePath);
+  let ext = path.extname(filePath);
+
+  if ([".enc", ".gz"].includes(ext)) {
+    const parsedPath = path.parse(filePath);
+    ext = getExt(path.join(parsedPath.dir, parsedPath.name)) + ext;
+  }
+
+  return ext;
 }
 
-async function installFromZip(
+async function installFromTarball(
   scriptPath: string,
   localScriptsDir: string,
-  args: InstallZipArgs
+  args: InstallTarballArgs
 ): Promise<void> {
-  const archiveFileData = await fs.readFile(scriptPath);
-  const archiveFile = await jszip.loadAsync(archiveFileData);
+  const randomSuffix = v4();
+  const destTempDir = path.join(localScriptsDir, "temp-" + randomSuffix);
 
-  const packageJsonZipped = archiveFile.file("package.json");
-  if (!packageJsonZipped) {
-    console.error(
-      chalk.red("Cannot find package.json file in root of script archive.")
-    );
-    process.exit(1);
-  }
+  await pipeline(
+    fs.createReadStream(scriptPath),
+    createGunzip(),
+    extract(destTempDir, {
+      strip: 1,
+    })
+  );
 
-  const packageJson = JSON.parse(await packageJsonZipped.async("string"));
+  await installFromTempDir(destTempDir, localScriptsDir);
+}
 
-  const zxUtilsDef: ZxUtilsPackageJson | undefined = packageJson.zxUtils;
-  if (!zxUtilsDef) {
-    console.error(
-      chalk.red(
-        "Package.json should have 'zxUtils' property properly defined and populated."
-      )
-    );
-    process.exit(1);
-  }
-
-  const scriptId = zxUtilsDef.id;
-  const destTempDir = path.join(localScriptsDir, scriptId + "-temp");
-  const destFinalDir = path.join(localScriptsDir, scriptId);
-
-  await extractZip(archiveFile, destTempDir);
-
+async function installFromTempDir(tempDir: string, localScriptsDir: string) {
   try {
-    await exec("npm ci --omit=dev", { cwd: destTempDir });
+    const packageJsonPath = path.join(tempDir, "package.json");
+    const packageJsonExists = await fs.exists(packageJsonPath);
+    if (!packageJsonExists) {
+      console.error(chalk.red("Cannot find 'package.json' in install source."));
+      process.exit(1);
+    }
+
+    const packageJson = JSON.parse(
+      await fs.readFile(packageJsonPath, { encoding: "utf-8" })
+    );
+    const zxUtilsDef: ZxUtilsPackageJson | undefined = packageJson.zxUtils;
+    if (!zxUtilsDef) {
+      console.error(
+        chalk.red(
+          "'package.json' should have 'zxUtils' property properly defined and populated."
+        )
+      );
+      process.exit(1);
+    }
+
+    const scriptId = zxUtilsDef.id;
+    const destFinalDir = path.join(localScriptsDir, scriptId);
+
+    $.cwd = tempDir;
+    await $`npm i --omit=dev`;
+    $.cwd = undefined;
+
+    if (await fs.exists(destFinalDir)) {
+      await fs.remove(destFinalDir);
+    }
+
+    await fs.rename(tempDir, destFinalDir);
   } catch (e) {
     console.error(chalk.red(e));
+    await fs.remove(tempDir);
     process.exit(1);
   }
-
-  if (await fs.exists(destFinalDir)) {
-    await fs.remove(destFinalDir);
-  }
-
-  await fs.rename(destTempDir, destFinalDir);
 }
