@@ -1,4 +1,4 @@
-import { $, chalk, question } from "zx";
+import { $, chalk, fs, question } from "zx";
 import { isOsPlatformAnyOf } from "../../core/script/utils.js";
 import { $useContext, $usePowershell } from "../../core/utils/cmd.utils.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
@@ -105,6 +105,12 @@ class WinPluginClz implements ZxPlugin {
   }
 
   async createShortcut(target: string, linkPath: string) {
+    const alreadyExists = await fs.exists(linkPath);
+    if (alreadyExists) {
+      console.log(chalk.yellow("Link already exist, skipping."));
+      return;
+    }
+
     await this.runAsPowershell`$WshShell = New-Object -comObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut(${linkPath})
 $Shortcut.TargetPath = ${target}
