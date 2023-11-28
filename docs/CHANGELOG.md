@@ -1,3 +1,11 @@
+# [0.2.0](https://github.com/marcuson/zxutils/compare/0.1.1...0.2.0) (2023-11-28)
+
+
+### Features
+
+* **zxman:** Allow to run script from local repo dir. ([69e0950](https://github.com/marcuson/zxutils/commit/69e095025e50dafd34fbbbf0b127265cbfa86d07))
+* **zxman:** Install from tarball (replace zip). ([f4ec266](https://github.com/marcuson/zxutils/commit/f4ec266ba461adea1c42d4c851573551ec5da102))
+
 ## [0.1.1](https://github.com/marcuson/zxutils/compare/0.1.0...0.1.1) (2023-11-28)
 
 
