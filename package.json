@@ -1,6 +1,6 @@
 {
   "name": "@marcuson/zxutils",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Wrapper around google/zx to add some useful features.",
   "type": "module",
   "main": "dist/index.js",

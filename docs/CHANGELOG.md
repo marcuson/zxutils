@@ -1,3 +1,11 @@
+# [0.3.0](https://github.com/marcuson/zxutils/compare/0.2.0...0.3.0) (2023-11-29)
+
+
+### Features
+
+* **zxman:** Add pack commands to create tarballs of scripts. ([28ae1cd](https://github.com/marcuson/zxutils/commit/28ae1cddcfcc41c45d83e6b9b0370e08485c74f3))
+* **zxman:** Add possibility to install encrypted tarballs. ([5eb77ed](https://github.com/marcuson/zxutils/commit/5eb77ed2f9d11f3d01e32873c7d91ade4c7ac2a5))
+
 # [0.2.0](https://github.com/marcuson/zxutils/compare/0.1.1...0.2.0) (2023-11-28)
 
 
