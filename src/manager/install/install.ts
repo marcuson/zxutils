@@ -4,8 +4,19 @@ import { v4 } from "uuid";
 import { createGunzip } from "zlib";
 import { $, chalk, fs, path } from "zx";
 import { ZxUtilsPackageJson } from "../../core/script/zx-utils-package-json.js";
+import { decryptor } from "../crypto/crypto.utils.js";
 import { getLocalScriptsRepoDir } from "../utils.js";
-import { InstallArgs, InstallTarballArgs } from "./install-args.js";
+import { InstallArgs, InstallEncryptedArgs } from "./install-args.js";
+
+type PipelineTransform =
+  | NodeJS.ReadableStream
+  | NodeJS.WritableStream
+  | NodeJS.ReadWriteStream;
+
+interface TarballPipelineOpts {
+  transforms: PipelineTransform[];
+  tempDir: string;
+}
 
 export async function install(
   scriptPath: string,
@@ -19,55 +30,96 @@ export async function install(
     await fs.ensureDir(localScriptsDir);
   }
 
-  const ext = getExt(scriptPath);
-  switch (ext) {
-    case ".tgz":
-    case ".tar.gz":
-      await installFromTarball(
-        scriptPath,
-        localScriptsDir,
-        args as InstallTarballArgs
-      );
-      break;
-    default:
-      console.error(chalk.red(`Unsupported script format '${ext}'`));
-      process.exit(1);
+  const scriptFullExt = getScriptFullExt(scriptPath);
+  const supportedFormats = [".tgz", ".tar.gz", ".tgz.enc", ".tar.gz.enc"];
+
+  if (!supportedFormats.includes(scriptFullExt)) {
+    console.error(chalk.red(`Unsupported script format '${scriptFullExt}'`));
+    process.exit(1);
   }
+
+  const pipelineOpts: TarballPipelineOpts = {
+    transforms: [],
+    tempDir: "",
+  };
+
+  let ext: string;
+  let scriptFilename = path.basename(scriptPath);
+  while ((ext = getExtPart(scriptFilename))) {
+    updatePipelineOpts(ext, args, pipelineOpts);
+    scriptFilename = path.parse(scriptFilename).name;
+  }
+
+  await installFromTarball(scriptPath, pipelineOpts);
 
   console.log(chalk.green(`Script installed!`));
 }
 
-function getExt(filePath: string): string {
-  let ext = path.extname(filePath);
-
-  if ([".enc", ".gz"].includes(ext)) {
-    const parsedPath = path.parse(filePath);
-    ext = getExt(path.join(parsedPath.dir, parsedPath.name)) + ext;
+function getScriptFullExt(filename: string) {
+  const ext = getExtPart(filename);
+  if (ext) {
+    return getScriptFullExt(path.parse(filename).name) + ext;
   }
 
   return ext;
 }
 
-async function installFromTarball(
-  scriptPath: string,
-  localScriptsDir: string,
-  args: InstallTarballArgs
-): Promise<void> {
-  const randomSuffix = v4();
-  const destTempDir = path.join(localScriptsDir, "temp-" + randomSuffix);
+function getExtPart(filename: string) {
+  const ext = path.extname(filename);
+  if (!isNaN(parseInt(ext.substring(1)))) {
+    return "";
+  }
 
-  await pipeline(
-    fs.createReadStream(scriptPath),
-    createGunzip(),
-    extract(destTempDir, {
-      strip: 1,
-    })
-  );
-
-  await installFromTempDir(destTempDir, localScriptsDir);
+  return ext;
 }
 
-async function installFromTempDir(tempDir: string, localScriptsDir: string) {
+function getTempDestDir(): string {
+  const randomSuffix = v4();
+  const destTempDir = path.join(
+    getLocalScriptsRepoDir(),
+    "temp-" + randomSuffix
+  );
+  return destTempDir;
+}
+
+function updatePipelineOpts(
+  ext: string,
+  args: InstallArgs,
+  opts: TarballPipelineOpts
+): void {
+  let tempDir = "";
+  switch (ext) {
+    case ".tar":
+      tempDir = getTempDestDir();
+      opts.transforms.push(extract(tempDir, { strip: 1 }));
+      opts.tempDir = tempDir;
+      break;
+    case ".gz":
+      opts.transforms.push(createGunzip());
+      break;
+    case ".tgz":
+      tempDir = getTempDestDir();
+      opts.transforms.push(createGunzip(), extract(tempDir, { strip: 1 }));
+      opts.tempDir = tempDir;
+      break;
+    case ".enc":
+      const encArgs = args as InstallEncryptedArgs;
+      opts.transforms.push(decryptor(encArgs.password));
+      break;
+    default:
+      return;
+  }
+}
+
+async function installFromTarball(
+  scriptPath: string,
+  opts: TarballPipelineOpts
+): Promise<void> {
+  await pipeline([fs.createReadStream(scriptPath), ...opts.transforms]);
+  await finalizeTempDirInstallation(opts.tempDir);
+}
+
+async function finalizeTempDirInstallation(tempDir: string) {
   try {
     const packageJsonPath = path.join(tempDir, "package.json");
     const packageJsonExists = await fs.exists(packageJsonPath);
@@ -90,7 +142,7 @@ async function installFromTempDir(tempDir: string, localScriptsDir: string) {
     }
 
     const scriptId = zxUtilsDef.id;
-    const destFinalDir = path.join(localScriptsDir, scriptId);
+    const destFinalDir = path.join(getLocalScriptsRepoDir(), scriptId);
 
     $.cwd = tempDir;
     await $`npm i --omit=dev`;

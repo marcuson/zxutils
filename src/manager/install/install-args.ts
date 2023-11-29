@@ -1,3 +1,5 @@
 export interface InstallArgs {}
 
-export interface InstallTarballArgs {}
+export interface InstallEncryptedArgs {
+  password?: string;
+}

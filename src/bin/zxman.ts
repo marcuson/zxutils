@@ -13,7 +13,11 @@ cli.enablePositionalOptions(true);
 cli
   .command("install")
   .alias("i")
-  .option("password", "Password to use to decrypt file.", undefined)
+  .option(
+    "-p, --password <password>",
+    "Password to use to decrypt file (if necessary).",
+    undefined
+  )
   .argument("<script path>")
   .action(async (scriptPath, options, _command) => {
     return install(scriptPath, options as InstallArgs);
