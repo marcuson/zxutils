@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/marcuson/zxutils/compare/0.3.0...0.4.0) (2023-11-29)
+
+
+### Features
+
+* **zxman:** Add command to show version. ([50fd35f](https://github.com/marcuson/zxutils/commit/50fd35f4aa3d8bc81446637af09da3455ed8bcb6))
+
 # [0.3.0](https://github.com/marcuson/zxutils/compare/0.2.0...0.3.0) (2023-11-29)
 
 
