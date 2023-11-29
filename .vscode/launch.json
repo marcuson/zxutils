@@ -39,6 +39,17 @@
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "console": "integratedTerminal",
       "args": ["ls"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch zxman version",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/bin/zxman.ts",
+      "preLaunchTask": "zxutils: build",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "args": ["version"]
     }
   ]
 }

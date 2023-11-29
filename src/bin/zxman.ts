@@ -7,10 +7,18 @@ import { list } from "../manager/list.js";
 import { PackArgs } from "../manager/pack/pack-args.js";
 import { pack } from "../manager/pack/pack.js";
 import { run } from "../manager/run.js";
+import { version } from "../manager/version.js";
 
 const cli = new Command();
 
 cli.enablePositionalOptions(true);
+
+cli
+  .command("version")
+  .alias("v")
+  .action(async (_options, _command) => {
+    return version();
+  });
 
 cli
   .command("install")
