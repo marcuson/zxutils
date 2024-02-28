@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/marcuson/zxutils/compare/0.4.0...0.5.0) (2024-02-28)
+
+
+### Features
+
+* Move reboot helper to basic plugin. ([efaa526](https://github.com/marcuson/zxutils/commit/efaa52697c219a63276b3ac7aaa99e4afa914dcc))
+
 # [0.4.0](https://github.com/marcuson/zxutils/compare/0.3.0...0.4.0) (2023-11-29)
 
 
