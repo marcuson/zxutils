@@ -63,7 +63,7 @@ class BasicPluginClz implements ZxPlugin {
         if (os.platform() === "win32") {
           await $`shutdown /r /T ${opts.timeoutMin * 60}`;
         } else {
-          await $`sudo reboot +${opts.timeoutMin} "PC is going to reboot in ${opts.timeoutMin} minute(s)."`;
+          await $`sudo shutdown -r +${opts.timeoutMin} "PC is going to reboot in ${opts.timeoutMin} minute(s)."`;
         }
         process.exit(0);
     }
