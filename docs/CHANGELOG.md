@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/marcuson/zxutils/compare/0.5.0...0.5.1) (2024-02-28)
+
+
+### Bug Fixes
+
+* Fix reboot in linux. ([d0119a3](https://github.com/marcuson/zxutils/commit/d0119a31b05c065f550c6635d660055ac9f1aecb))
+
 # [0.5.0](https://github.com/marcuson/zxutils/compare/0.4.0...0.5.0) (2024-02-28)
 
 
