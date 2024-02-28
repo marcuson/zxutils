@@ -1,6 +1,7 @@
-import { $, chalk, fs, question } from "zx";
+import { $, chalk, fs } from "zx";
 import { isOsPlatformAnyOf } from "../../core/script/utils.js";
 import { $useContext, $usePowershell } from "../../core/utils/cmd.utils.js";
+import { BasicPlugin } from "../basic/basic.plugin.js";
 import { ZxPlugin, createPlugin } from "../zx-plugin.js";
 import { EnableDesktopIconsOptions } from "./desktop-icons/enable-desktop-icons-opts.js";
 import { enableDesktopIconsInternal } from "./desktop-icons/enable-desktop-icons.js";
@@ -49,20 +50,7 @@ class WinPluginClz implements ZxPlugin {
         "IMPORTANT: you need to restart your PC for changes to UAC to take effect!"
       )
     );
-    await this.askRestart();
-  }
-
-  async askRestart(timeoutSec: number = 10): Promise<void> {
-    const response = await question("Do you want to restart now? [y]/n: ");
-    switch (response) {
-      case "n":
-        return;
-      case undefined:
-      case "y":
-      default:
-        await $`shutdown /r -t ${timeoutSec}`;
-        process.exit(0);
-    }
+    await BasicPlugin.askForReboot();
   }
 
   async classicRightClickMenu(enable: boolean) {
