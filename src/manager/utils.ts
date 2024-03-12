@@ -45,3 +45,21 @@ export async function getInstalledScripts(): Promise<InstalledScriptInfo[]> {
 
   return res;
 }
+
+export async function getScriptPath(
+  scriptIdOrPath: string
+): Promise<string | undefined> {
+  let scriptPath: string | undefined = undefined;
+
+  if (fs.existsSync(scriptIdOrPath)) {
+    scriptPath = scriptIdOrPath;
+  } else {
+    const installedScripts = await getInstalledScripts();
+
+    scriptPath = installedScripts.find(
+      (x) => x.scriptId === scriptIdOrPath
+    )?.scriptMainPath;
+  }
+
+  return scriptPath;
+}

@@ -8,9 +8,10 @@
       "type": "node",
       "request": "launch",
       "name": "Launch scaffold",
+      "runtimeVersion": "20",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/examples/scaffold/index.ts",
-      "preLaunchTask": "scaffold: debug prep",
+      "preLaunchTask": "scaffold: build",
       "outFiles": [
         "${workspaceFolder}/examples/scaffold/dist/**/*.js",
         "${workspaceFolder}/dist/**/*.js"

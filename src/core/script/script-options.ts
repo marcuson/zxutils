@@ -1,9 +1,11 @@
 export interface ScriptOptions {
   enableStepTracking: boolean;
+  verbose: boolean;
 }
 
 const defaultScriptOptions: ScriptOptions = {
   enableStepTracking: false,
+  verbose: true,
 };
 
 export function fillDefaultScriptOptions(
